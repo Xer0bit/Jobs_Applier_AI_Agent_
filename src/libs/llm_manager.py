@@ -232,41 +232,19 @@ class AIAdapter:
     
     def _create_local_model(self) -> AIModel:
         """Create a local model through Ollama."""
-        logger.info("Creating local model (deepseek-r1:32b) through Ollama")
+        logger.info("Creating local model (phi3:latest) through Ollama")
         try:
-    def _create_local_model(self) -> AIModel:
-        """Create a local model as a fallback when API authentication fails."""
-        logger.info("Creating fallback local model (deepseek-r1) through Ollama")
-        try:
-            return DeepseekModel("", "deepseek-r1:32b")  # Empty API key for local model
+            return DeepseekModel("", "phi3:latest")  # Empty API key for local model
         except Exception as e:
-            logger.critical(f"Failed to create fallback local model: {str(e)}")
-            raise ValueError("Failed to create any working model. Please check your setup.")
+            logger.critical(f"Failed to create local model: {str(e)}")
+            raise ValueError("Failed to create local model. Please check your Ollama setup.")
 
     def _create_model(self, config: dict, api_key: str) -> AIModel:
-        llm_model_type = cfg.LLM_MODEL_TYPE
-        llm_model = cfg.LLM_MODEL
-
-        llm_api_url = cfg.LLM_API_URL
-
-        logger.debug(f"Using {llm_model_type} with {llm_model}")
-
-        if llm_model_type == OPENAI:
-            return OpenAIModel(api_key, llm_model)
-        elif llm_model_type == CLAUDE:
-            return ClaudeModel(api_key, llm_model)
-        elif llm_model_type == OLLAMA:
-            return OllamaModel(llm_model, llm_api_url)
-        elif llm_model_type == GEMINI:
-            return GeminiModel(api_key, llm_model)
-        elif llm_model_type == HUGGINGFACE:
-            return HuggingFaceModel(api_key, llm_model)
-        elif llm_model_type == PERPLEXITY:
-            return PerplexityModel(api_key, llm_model)
-        elif llm_model_type == DEEPSEEK:
-            return DeepseekModel(api_key, llm_model)
-        else:
-            raise ValueError(f"Unsupported model type: {llm_model_type}")
+        """
+        This method is kept for compatibility but redirects to local model.
+        """
+        logger.debug("Redirecting to local model creation")
+        return self._create_local_model()
 
     def invoke(self, prompt: str) -> str:
         return self.model.invoke(prompt)
@@ -387,106 +365,41 @@ class LLMLogger:
 class LoggerChatModel:
     def __init__(self, llm: Union[OpenAIModel, OllamaModel, ClaudeModel, GeminiModel, DeepseekModel]):
         self.llm = llm
-        self.fallback_initialized = False
         logger.debug(f"LoggerChatModel successfully initialized with LLM: {llm}")
 
-    def _initialize_fallback_model(self):
-        """Initialize a fallback local model if not already done."""
-        if not self.fallback_initialized:
-            logger.info("Initializing fallback local model (deepseek-r1) through Ollama")
-            try:
-                from langchain_community.llms import Ollama
-                self.fallback_llm = DeepseekModel("", "deepseek-r1:32b")  # Empty API key for local model
-                self.fallback_initialized = True
-                logger.info("Fallback model initialized successfully")
-            except Exception as e:
-                logger.error(f"Failed to initialize fallback model: {str(e)}")
-                raise
-
     def __call__(self, messages: List[Dict[str, str]]) -> str:
-        logger.debug(f"Entering __call__ method with messages: {messages}")
+        logger.debug(f"Entering __call__ method with messages")
         retry_delay = DEFAULT_RETRY_DELAY
-        auth_error_encountered = False
         
         for attempt in range(MAX_RETRIES):
             try:
-                # If we've encountered an auth error and have a fallback model, use it
-                if auth_error_encountered and self.fallback_initialized:
-                    logger.info("Using fallback model due to previous authentication error")
-                    reply = self.fallback_llm.invoke(messages)
+                logger.debug("Attempting to call the LLM with messages")
+                
+                # For Ollama models, we may need to convert the messages format
+                if isinstance(self.llm.model, DeepseekModel.__class__):
+                    if isinstance(messages, list):
+                        # Extract content from each message to create a single prompt
+                        text_prompt = "\n\n".join([m.get("content", "") for m in messages])
+                    else:
+                        text_prompt = str(messages)
+                    
+                    reply = self.llm.invoke(text_prompt)
                 else:
-                    logger.debug("Attempting to call the LLM with messages")
                     reply = self.llm.invoke(messages)
                 
-                logger.debug(f"LLM response received: {reply}")
+                logger.debug(f"LLM response received")
 
                 parsed_reply = self.parse_llmresult(reply)
-                logger.debug(f"Parsed LLM reply: {parsed_reply}")
+                logger.debug(f"Parsed LLM reply")
 
                 LLMLogger.log_request(prompts=messages, parsed_reply=parsed_reply)
                 logger.debug("Request successfully logged")
 
                 return reply
 
-            except httpx.HTTPStatusError as e:
-                logger.error(f"HTTPStatusError encountered: {str(e)}")
-                status_code = str(e.response.status_code)
-                
-                if status_code == UNAUTHORIZED_ERROR:
-                    logger.warning("Authentication error (401 Unauthorized): Attempting to use fallback model")
-                    auth_error_encountered = True
-                    
-                    # Initialize fallback model if not already done
-                    if not self.fallback_initialized:
-                        self._initialize_fallback_model()
-                    
-                    # Retry immediately with fallback model
-                    continue
-                
-                elif status_code == RATE_LIMIT_ERROR:
-                    retry_after = e.response.headers.get("retry-after")
-                    retry_after_ms = e.response.headers.get("retry-after-ms")
-
-                    if retry_after:
-                        wait_time = int(retry_after)
-                    elif retry_after_ms:
-                        wait_time = int(retry_after_ms) / 1000.0
-                    else:
-                        wait_time = retry_delay
-                        retry_delay *= 2
-                    
-                    logger.warning(
-                        f"Rate limit exceeded. Waiting for {wait_time} seconds before retrying (Attempt {attempt + 1}/{MAX_RETRIES})..."
-                    )
-                    time.sleep(wait_time)
-                else:
-                    logger.error(
-                        f"HTTP error occurred with status code: {e.response.status_code}, waiting {retry_delay} seconds before retrying"
-                    )
-                    time.sleep(retry_delay)
-                    retry_delay *= 2
-
-            except ValueError as e:
-                if "Invalid API key" in str(e) or "authentication" in str(e).lower():
-                    logger.warning(f"API authentication error: {str(e)}")
-                    auth_error_encountered = True
-                    
-                    # Initialize fallback model if not already done
-                    if not self.fallback_initialized:
-                        self._initialize_fallback_model()
-                    
-                    # Retry immediately with fallback model
-                    continue
-                else:
-                    logger.error(f"ValueError occurred: {str(e)}")
-                    time.sleep(retry_delay)
-                    retry_delay *= 2
-
             except Exception as e:
-                logger.error(f"Unexpected error occurred: {str(e)}")
-                logger.info(
-                    f"Waiting for {retry_delay} seconds before retrying due to an unexpected error."
-                )
+                logger.error(f"Error occurred while calling LLM: {str(e)}")
+                logger.info(f"Waiting for {retry_delay} seconds before retrying (Attempt {attempt + 1}/{MAX_RETRIES})")
                 time.sleep(retry_delay)
                 retry_delay *= 2
                 continue
@@ -494,94 +407,80 @@ class LoggerChatModel:
         logger.critical(f"Failed to get a response after {MAX_RETRIES} attempts")
         raise Exception(f"Failed to get a response after {MAX_RETRIES} attempts")
 
-    def parse_wait_time_from_error_message(self, error_message: str) -> int:
-        """
-        Parse the wait time from API rate limit error messages.
-        Args:
-            error_message (str): The error message from the API.
-        Returns:
-            int: The number of seconds to wait before retrying.
-        """
-        # Try to extract retry time from error message
-        retry_match = re.search(r"retry after (\d+)", error_message, re.IGNORECASE)
-        if retry_match:
-            return int(retry_match.group(1))
-        
-        # Default retry delay if no specific time is found
-        return DEFAULT_RETRY_DELAY
-
     def parse_llmresult(self, llmresult: AIMessage) -> Dict[str, Dict]:
-        logger.debug(f"Parsing LLM result: {llmresult}")
-
+        logger.debug(f"Parsing LLM result")
+        
         try:
-            if hasattr(llmresult, USAGE_METADATA):
-                content = llmresult.content
+            # Create a standard format regardless of model source
+            content = llmresult.content
+            
+            # Default metadata for local models
+            default_metadata = {
+                "model_name": "phi3:latest",
+                "system_fingerprint": "",
+                "finish_reason": "stop",
+                "logprobs": None,
+            }
+            
+            # Default usage for local models
+            default_usage = {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 0,
+            }
+            
+            # Try to get metadata and usage if available
+            if hasattr(llmresult, 'response_metadata') and llmresult.response_metadata:
                 response_metadata = llmresult.response_metadata
-                id_ = llmresult.id
-                usage_metadata = llmresult.usage_metadata
-
-                parsed_result = {
-                    CONTENT: content,
-                    RESPONSE_METADATA: {
-                        MODEL_NAME: response_metadata.get(
-                            MODEL_NAME, ""
-                        ),
-                        SYSTEM_FINGERPRINT: response_metadata.get(
-                            SYSTEM_FINGERPRINT, ""
-                        ),
-                        FINISH_REASON: response_metadata.get(
-                            FINISH_REASON, ""
-                        ),
-                        LOGPROBS: response_metadata.get(
-                            LOGPROBS, None
-                        ),
-                    },
-                    ID: id_,
-                    USAGE_METADATA: {
-                        INPUT_TOKENS: usage_metadata.get(
-                            INPUT_TOKENS, 0
-                        ),
-                        OUTPUT_TOKENS: usage_metadata.get(
-                            OUTPUT_TOKENS, 0
-                        ),
-                        TOTAL_TOKENS: usage_metadata.get(
-                            TOTAL_TOKENS, 0
-                        ),
-                    },
-                }
             else:
-                content = llmresult.content
-                response_metadata = llmresult.response_metadata
+                response_metadata = default_metadata
+                
+            if hasattr(llmresult, 'id'):
                 id_ = llmresult.id
-                token_usage = response_metadata[TOKEN_USAGE]
+            else:
+                id_ = "local_model_response"
+                
+            if hasattr(llmresult, 'usage_metadata') and llmresult.usage_metadata:
+                usage_metadata = llmresult.usage_metadata
+            else:
+                usage_metadata = default_usage
 
-                parsed_result = {
-                    CONTENT: content,
-                    RESPONSE_METADATA: {
-                        MODEL_NAME: response_metadata.get(
-                            MODEL, ""
-                        ),
-                        FINISH_REASON: response_metadata.get(
-                            FINISH_REASON, ""
-                        ),
-                    },
-                    ID: id_,
-                    USAGE_METADATA: {
-                        INPUT_TOKENS: token_usage.prompt_tokens,
-                        OUTPUT_TOKENS: token_usage.completion_tokens,
-                        TOTAL_TOKENS: token_usage.total_tokens,
-                    },
-                }
-            logger.debug(f"Parsed LLM result successfully: {parsed_result}")
+            parsed_result = {
+                CONTENT: content,
+                RESPONSE_METADATA: {
+                    MODEL_NAME: response_metadata.get(MODEL_NAME, "phi3:latest"),
+                    SYSTEM_FINGERPRINT: response_metadata.get(SYSTEM_FINGERPRINT, ""),
+                    FINISH_REASON: response_metadata.get(FINISH_REASON, "stop"),
+                    LOGPROBS: response_metadata.get(LOGPROBS, None),
+                },
+                ID: id_,
+                USAGE_METADATA: {
+                    INPUT_TOKENS: usage_metadata.get(INPUT_TOKENS, 0),
+                    OUTPUT_TOKENS: usage_metadata.get(OUTPUT_TOKENS, 0),
+                    TOTAL_TOKENS: usage_metadata.get(TOTAL_TOKENS, 0),
+                },
+            }
+            logger.debug("Parsed LLM result successfully")
             return parsed_result
 
-        except KeyError as e:
-            logger.error(f"KeyError while parsing LLM result: missing key {str(e)}")
-            raise
-
         except Exception as e:
-            logger.error(f"Unexpected error while parsing LLM result: {str(e)}")
-            raise
+            logger.error(f"Error parsing LLM result: {str(e)}")
+            # Return a default structure when parsing fails
+            return {
+                CONTENT: str(llmresult),
+                RESPONSE_METADATA: {
+                    MODEL_NAME: "phi3:latest",
+                    SYSTEM_FINGERPRINT: "",
+                    FINISH_REASON: "stop",
+                    LOGPROBS: None,
+                },
+                ID: "error_parsing_response",
+                USAGE_METADATA: {
+                    INPUT_TOKENS: 0,
+                    OUTPUT_TOKENS: 0,
+                    TOTAL_TOKENS: 0,
+                },
+            }
 
 
 class GPTAnswerer:
@@ -833,4 +732,3 @@ class GPTAnswerer:
         if int(score) < JOB_SUITABILITY_SCORE:
             logger.debug(f"Job is not suitable: {reasoning}")
         return int(score) >= JOB_SUITABILITY_SCORE
-```

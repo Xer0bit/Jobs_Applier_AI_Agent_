@@ -85,5 +85,5 @@ DEFAULT_RETRY_DELAY = 30
 MAX_RETRIES = 15
 
 # Local model fallback settings
-LOCAL_MODEL_NAME = "deepseek-r1:32b" 
+LOCAL_MODEL_NAME = "phi3:latest" 
 LOCAL_MODEL_TYPE = DEEPSEEK

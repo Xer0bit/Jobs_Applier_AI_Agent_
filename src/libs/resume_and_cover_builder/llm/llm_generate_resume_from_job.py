@@ -1,13 +1,12 @@
 """
 Create a class that generates a job description based on a resume and a job description template.
 """
-# app/libs/resume_and_cover_builder/llm_generate_resume_from_job.py
 import os
 from src.libs.resume_and_cover_builder.llm.llm_generate_resume import LLMResumer
 from src.libs.resume_and_cover_builder.utils import LoggerChatModel
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_openai import ChatOpenAI
+from langchain_community.llms import Ollama  # Use Ollama directly
 from dotenv import load_dotenv
 from loguru import logger
 from pathlib import Path
@@ -22,11 +21,16 @@ log_path = Path(log_folder).resolve()
 logger.add(log_path / "gpt_resum_job_descr.log", rotation="1 day", compression="zip", retention="7 days", level="DEBUG")
 
 class LLMResumeJobDescription(LLMResumer):
-    def __init__(self, openai_api_key, strings):
+    def __init__(self, openai_api_key=None, strings=None):
+        """
+        Initialize with local Ollama model, passing parameters to parent class.
+        """
+        logger.info("Initializing LLMResumeJobDescription with local Ollama model")
         try:
             super().__init__(openai_api_key, strings)
+            logger.info("Successfully initialized LLMResumeJobDescription")
         except ValueError as e:
-            logger.error(f"Error in LLMResumeJobDescription initialization: {str(e)}")
+            logger.critical(f"Error in LLMResumeJobDescription initialization: {str(e)}")
             raise
 
     def set_job_description_from_text(self, job_description_text) -> None:

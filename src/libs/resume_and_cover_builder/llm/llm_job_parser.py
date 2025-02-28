@@ -6,7 +6,8 @@ import re  # For email validation
 from src.libs.resume_and_cover_builder.utils import LoggerChatModel
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
-from langchain_openai import ChatOpenAI
+from langchain_community.llms import Ollama  # Use Ollama directly
+from langchain_community.embeddings import OllamaEmbeddings  # Use Ollama embeddings
 from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from loguru import logger
@@ -14,12 +15,9 @@ from pathlib import Path
 from langchain_core.prompt_values import StringPromptValue
 from langchain_core.runnables import RunnablePassthrough
 from langchain_text_splitters import TokenTextSplitter
-from langchain_community.embeddings import OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
 from lib_resume_builder_AIHawk.config import global_config
 from langchain_community.document_loaders import TextLoader
-from requests.exceptions import HTTPError as HTTPStatusError  # HTTP error handling
-import openai
 
 # Load environment variables from the .env file
 load_dotenv()
@@ -33,36 +31,25 @@ logger.add(log_path / "gpt_resume.log", rotation="1 day", compression="zip", ret
 
 
 class LLMParser:
-    def __init__(self, openai_api_key):
-        self.using_local_model = False
+    def __init__(self, openai_api_key=None):
+        """
+        Initialize with Ollama models directly, ignoring any API keys.
+        """
+        logger.info("Initializing LLMParser with local Ollama model")
         try:
-            self.llm = LoggerChatModel(
-                ChatOpenAI(
-                    model_name="gpt-4o-mini", openai_api_key=openai_api_key, temperature=0.4
-                )
-            )
-            self.llm_embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
-        except (ValueError, HTTPStatusError) as e:
-            logger.error(f"Error initializing ChatOpenAI or OpenAIEmbeddings: {str(e)}")
-            if "API key" in str(e) or "authentication" in str(e).lower() or "401" in str(e):
-                # Try to use a local model through Ollama if API key is invalid
-                from langchain_community.llms import Ollama
-                from langchain_community.embeddings import OllamaEmbeddings
-                logger.info("Attempting to use local models (deepseek-r1:32b) through Ollama instead")
-                try:
-                    from src.libs.resume_and_cover_builder.utils import LoggerChatModel as LocalLoggerChatModel
-                    
-                    self.llm = LocalLoggerChatModel(
-                        Ollama(model="deepseek-r1:32b")
-                    )
-                    self.llm_embeddings = OllamaEmbeddings(model="deepseek-r1:32b")
-                    self.using_local_model = True
-                    logger.info("Successfully initialized local Ollama models")
-                except Exception as inner_e:
-                    logger.critical(f"Failed to initialize local models as fallback: {str(inner_e)}")
-                    raise ValueError("Authentication failed and local model initialization failed. Please check your API keys or Ollama setup.")
-            else:
-                raise
+            # Use Ollama's LLM
+            ollama_model = Ollama(model="phi3:latest")
+            
+            # Wrap it with LoggerChatModel
+            self.llm = LoggerChatModel(ollama_model)
+            
+            # Use Ollama's embeddings
+            self.llm_embeddings = OllamaEmbeddings(model="phi3:latest")
+            
+            logger.info("Successfully initialized local Ollama models")
+        except Exception as e:
+            logger.critical(f"Failed to initialize Ollama models: {str(e)}")
+            raise ValueError("Failed to initialize Ollama models. Please check your Ollama setup.")
         
         self.vectorstore = None  # Will be initialized after document loading
 

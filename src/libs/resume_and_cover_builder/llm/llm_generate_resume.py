@@ -1,13 +1,12 @@
 """
 Create a class that generates a resume based on a resume and a resume template.
 """
-# app/libs/resume_and_cover_builder/gpt_resume.py
 import os
 import textwrap
 from src.libs.resume_and_cover_builder.utils import LoggerChatModel
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_openai import ChatOpenAI
+from langchain_community.llms import Ollama  # Use Ollama directly
 from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from loguru import logger
@@ -24,31 +23,21 @@ log_path = Path(log_folder).resolve()
 logger.add(log_path / "gpt_resume.log", rotation="1 day", compression="zip", retention="7 days", level="DEBUG")
 
 class LLMResumer:
-    def __init__(self, openai_api_key, strings):
+    def __init__(self, openai_api_key=None, strings=None):
+        """
+        Initialize with local Ollama model, ignoring any API keys.
+        """
+        logger.info("Initializing LLMResumer with local Ollama model")
         try:
-            self.llm_cheap = LoggerChatModel(
-                ChatOpenAI(
-                    model_name="gpt-4o-mini", openai_api_key=openai_api_key, temperature=0.4
-                )
-            )
-        except ValueError as e:
-            logger.error(f"Error initializing ChatOpenAI: {str(e)}")
-            if "API key" in str(e) or "authentication" in str(e).lower():
-                # Try to use a local model through Ollama if API key is invalid
-                from langchain_community.llms import Ollama
-                logger.info("Attempting to use local model (deepseek-r1:32b) through Ollama instead")
-                try:
-                    from src.libs.resume_and_cover_builder.utils import LoggerChatModel as LocalLoggerChatModel
-                    
-                    self.llm_cheap = LocalLoggerChatModel(
-                        Ollama(model="deepseek-r1:32b")
-                    )
-                    logger.info("Successfully initialized local Ollama model")
-                except Exception as inner_e:
-                    logger.critical(f"Failed to initialize local model as fallback: {str(inner_e)}")
-                    raise ValueError("Authentication failed and local model initialization failed. Please check your API keys or Ollama setup.")
-            else:
-                raise
+            # Use Ollama directly
+            ollama_model = Ollama(model="phi3:latest")
+            
+            # Wrap with LoggerChatModel
+            self.llm_cheap = LoggerChatModel(ollama_model)
+            logger.info("Successfully initialized local Ollama model")
+        except Exception as e:
+            logger.critical(f"Failed to initialize Ollama model: {str(e)}")
+            raise ValueError("Failed to initialize Ollama model. Please check your Ollama setup.")
                 
         self.strings = strings
 
