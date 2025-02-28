@@ -26,6 +26,9 @@ JOB_SUITABILITY_SCORE = 6  # Minimum score (out of 10) for job to be considered 
 MAX_RETRIES = 3
 RETRY_DELAY = 5
 
+# Chrome Driver Path
+CHROME_DRIVER_PATH = "" # Add the path to your chrome driver
+
 # Create directories if they don't exist
 for directory in [LOG_DIR, OUTPUT_DIR, DATA_DIR]:
     directory.mkdir(exist_ok=True)
