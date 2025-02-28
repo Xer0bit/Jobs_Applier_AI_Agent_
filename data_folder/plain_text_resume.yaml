@@ -1,0 +1,184 @@
+personal_information:
+  name: "Muhammad Sameer"
+  surname: "Akram"
+  date_of_birth: "15/05/2003"
+  country: "Pakistan"
+  city: "lahore"
+  zip_code: " 54000"
+  address: "Green Acers"
+  phone_prefix: "+92"
+  phone: "3223989165"
+  email: "sameersamiullah02@gmail.com"
+  github: "https://github.com/xer0bit"
+  linkedin: "https://www.linkedin.com/in/sameer-samiullah/"
+  
+
+education_details:
+  - education_level: "B.S. in Software Engineering"
+    institution: "Superior University Lahore"
+    field_of_study: "Software Engineering & AI"
+    final_evaluation_grade: "3.7"
+    year_of_completion: "2025"
+    start_date: "2021"
+    additional_info:
+      exam:
+        Algorithms: "A"
+        Linear Algebra: "A"
+        Database Systems: "A"
+        Operating Systems: "A-"
+        Web Development: "A"
+  - education_level: "Erasmus Mundus Exchange (Software Engineering)"
+    institution: "İstanbul Aydin University"
+    field_of_study: "Machine Learning & Software Development"
+    final_evaluation_grade: "3.10"
+    year_of_completion: "2024"
+    start_date: "2023"
+    additional_info:
+      exam:
+        Algorithms: "A"
+        Linear Algebra: "A"
+        Database Systems: "A"
+        Operating Systems: "A-"
+        Web Development: "A"
+
+
+
+
+experience_details:
+  - position: "AI Engineer & Growth Strategist"
+    company: "38 DIGITAL"
+    employment_period: "10/2024 - Present"
+    location: "Hong Kong SAR"
+    industry: "Technology"
+    key_responsibilities:
+      - responsibility: "Developed AI solutions using PyTorch and FastAPI"
+      - responsibility: "Optimized CUDA-accelerated models on Docker, reducing processing time by 20%"
+      - responsibility: "Drove innovation for a digital agency"
+    skills_acquired:
+      - "PyTorch"
+      - "FastAPI"
+      - "CUDA"
+      - "Docker"
+  - position: "Machine Learning Engineer"
+    company: "BITLOGICX"
+    employment_period: "06/2024 - Present"
+    location: "Lahore, Pakistan"
+    industry: "Technology"
+    key_responsibilities:
+      - responsibility: "Led ML model development with PyTorch and Django on Linux servers"
+      - responsibility: "Implemented CUDA optimizations, cutting training time by 30%"
+      - responsibility: "Automated workflows for a tech-driven firm"
+    skills_acquired:
+      - "Machine Learning"
+      - "PyTorch"
+      - "Django"
+      - "CUDA"
+  - position: "Freelance Python Developer"
+    company: "Upwork"
+    employment_period: "01/2022 - Present"
+    location: "Remote"
+    industry: "Freelance"
+    key_responsibilities:
+      - responsibility: "Delivered global ML and image processing solutions using FastAPI and Docker"
+      - responsibility: "Enhanced client productivity with scalable, GPU-accelerated models"
+    skills_acquired:
+      - "Python"
+      - "Machine Learning"
+      - "FastAPI"
+      - "Docker"
+  - position: "Python Developer [Contract]"
+    company: "BabbleLabs, Inc. (Cisco Systems)"
+    employment_period: "04/2023 - 06/2023"
+    location: "San Jose, CA"
+    industry: "Technology"
+    key_responsibilities:
+      - responsibility: "Integrated video downsampling into a pipeline"
+      - responsibility: "Streamlined Linux-based deployment with AI frameworks"
+    skills_acquired:
+      - "Python"
+      - "AI Deployment"
+      - "Linux"
+
+projects:
+  - name: "VoiceSync Translator"
+    description: "Built a real-time speech transcription and translation web app using FastAPI and PyTorch."
+    link: "https://github.com/xer0bit"
+  - name: "FootMetrics Analyzer"
+    description: "Created a Python-based foot measurement tool with object detection, improving accuracy by 15%."
+    link: "https://github.com/xer0bit"
+  - name: "AutoScribe AI"
+    description: "Developed an AI writing assistant with GPT and LLaMA 3.1 integration, boosting author productivity."
+    link: "https://github.com/xer0bit"
+  - name: "ReceiptScan Intelligence"
+    description: "Designed an OCR-based expense tracker with Python and FastAPI, streamlining financial workflows."
+    link: "https://github.com/xer0bit"
+  - name: "Scriptro"
+    description: "Launched scriptro.com, a toolkit website to simplify digital tasks and boost productivity."
+    link: "https://scriptro.com"
+
+
+
+achievements:
+  - name: "Employee of the Month"
+    description: "Recognized for exceptional performance and contributions to the team."
+  - name: "Hackathon Winner"
+    description: "Won first place in a national hackathon competition."
+
+certifications:
+  - name: "Certified Scrum Master"
+    description: "Recognized certification for proficiency in Agile methodologies and Scrum framework."
+  - name: "AWS Certified Solutions Architect"
+    description: "Certification demonstrating expertise in designing, deploying, and managing applications on AWS."
+
+languages:
+  - language: "English"
+    proficiency: "Fluent"
+  - language: "urdu/hindi"
+    proficiency: "Native"
+
+interests:
+  - "Machine Learning"
+  - "Cybersecurity"
+  - "Open Source Projects"
+  - "Digital Marketing"
+  - "Entrepreneurship"
+
+availability:
+  notice_period: "2 weeks"
+
+salary_expectations:
+  salary_range_usd: "50000 - 70000"
+
+self_identification:
+  gender: "male"
+  pronouns: "he/hir"
+  veteran: "No"
+  disability: "No"
+  ethnicity: "Asian"
+
+legal_authorization:
+  eu_work_authorization: "Yes"
+  us_work_authorization: "Yes"
+  requires_us_visa: "Yes"
+  requires_us_sponsorship: "Yes"
+  requires_eu_visa: "Yes"
+  legally_allowed_to_work_in_eu: "Yes"
+  legally_allowed_to_work_in_us: "Yes"
+  requires_eu_sponsorship: "Yes"
+  canada_work_authorization: "Yes"
+  requires_canada_visa: "No"
+  legally_allowed_to_work_in_canada: "Yes"
+  requires_canada_sponsorship: "No"
+  uk_work_authorization: "Yes"
+  requires_uk_visa: "No"
+  legally_allowed_to_work_in_uk: "Yes"
+  requires_uk_sponsorship: "No"
+
+
+work_preferences:
+  remote_work: "Yes"
+  in_person_work: "Yes"
+  open_to_relocation: "Yes"
+  willing_to_complete_assessments: "Yes"
+  willing_to_undergo_drug_tests: "Yes"
+  willing_to_undergo_background_checks: "Yes"
