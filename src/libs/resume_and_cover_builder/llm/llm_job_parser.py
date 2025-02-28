@@ -38,13 +38,13 @@ class LLMParser:
         logger.info("Initializing LLMParser with local Ollama model")
         try:
             # Use Ollama's LLM
-            ollama_model = Ollama(model="phi3:latest")
+            ollama_model = Ollama(model="llama3.3")
             
             # Wrap it with LoggerChatModel
             self.llm = LoggerChatModel(ollama_model)
             
             # Use Ollama's embeddings
-            self.llm_embeddings = OllamaEmbeddings(model="phi3:latest")
+            self.llm_embeddings = OllamaEmbeddings(model="llama3.3")
             
             logger.info("Successfully initialized local Ollama models")
         except Exception as e:

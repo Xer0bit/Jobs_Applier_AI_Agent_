@@ -17,6 +17,6 @@ JOB_MAX_APPLICATIONS = 5
 JOB_MIN_APPLICATIONS = 1
 
 LLM_MODEL_TYPE = 'ollama'
-LLM_MODEL = 'phi3:latest'
+LLM_MODEL = 'llama3.3'
 # Only required for OLLAMA models
 LLM_API_URL = 'http://127.0.0.1:11434/'

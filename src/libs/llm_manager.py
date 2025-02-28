@@ -232,9 +232,9 @@ class AIAdapter:
     
     def _create_local_model(self) -> AIModel:
         """Create a local model through Ollama."""
-        logger.info("Creating local model (phi3:latest) through Ollama")
+        logger.info("Creating local model (llama3.3) through Ollama")
         try:
-            return DeepseekModel("", "phi3:latest")  # Empty API key for local model
+            return DeepseekModel("", "llama3.3")  # Empty API key for local model
         except Exception as e:
             logger.critical(f"Failed to create local model: {str(e)}")
             raise ValueError("Failed to create local model. Please check your Ollama setup.")
@@ -416,7 +416,7 @@ class LoggerChatModel:
             
             # Default metadata for local models
             default_metadata = {
-                "model_name": "phi3:latest",
+                "model_name": "llama3.3",
                 "system_fingerprint": "",
                 "finish_reason": "stop",
                 "logprobs": None,
@@ -448,7 +448,7 @@ class LoggerChatModel:
             parsed_result = {
                 CONTENT: content,
                 RESPONSE_METADATA: {
-                    MODEL_NAME: response_metadata.get(MODEL_NAME, "phi3:latest"),
+                    MODEL_NAME: response_metadata.get(MODEL_NAME, "llama3.3"),
                     SYSTEM_FINGERPRINT: response_metadata.get(SYSTEM_FINGERPRINT, ""),
                     FINISH_REASON: response_metadata.get(FINISH_REASON, "stop"),
                     LOGPROBS: response_metadata.get(LOGPROBS, None),
@@ -469,7 +469,7 @@ class LoggerChatModel:
             return {
                 CONTENT: str(llmresult),
                 RESPONSE_METADATA: {
-                    MODEL_NAME: "phi3:latest",
+                    MODEL_NAME: "llama3.3",
                     SYSTEM_FINGERPRINT: "",
                     FINISH_REASON: "stop",
                     LOGPROBS: None,

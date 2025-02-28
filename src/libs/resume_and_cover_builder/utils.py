@@ -54,7 +54,7 @@ class LLMLogger:
 
         # Extract model details from the response
         response_metadata = parsed_reply.get("response_metadata", {})
-        model_name = response_metadata.get("model_name", "phi3:latest")
+        model_name = response_metadata.get("model_name", "llama3.3")
         
         # For local models, we don't have real token costs
         total_cost = 0.0
@@ -104,7 +104,7 @@ class LoggerChatModel:
                 ai_message = AIMessage(content=response_text)
                 
                 # Add metadata for compatibility with the rest of the system
-                ai_message.response_metadata = {"model_name": "phi3:latest", "finish_reason": "stop"}
+                ai_message.response_metadata = {"model_name": "llama3.3", "finish_reason": "stop"}
                 ai_message.id = "local_model_response"
                 ai_message.usage_metadata = {"input_tokens": 0, "output_tokens": 0, "total_tokens": 0}
                 
@@ -136,7 +136,7 @@ class LoggerChatModel:
             if hasattr(llmresult, 'response_metadata') and llmresult.response_metadata:
                 response_metadata = llmresult.response_metadata
             else:
-                response_metadata = {"model_name": "phi3:latest", "finish_reason": "stop"}
+                response_metadata = {"model_name": "llama3.3", "finish_reason": "stop"}
                 
             if hasattr(llmresult, 'id') and llmresult.id:
                 id_ = llmresult.id
@@ -151,7 +151,7 @@ class LoggerChatModel:
             parsed_result = {
                 "content": content,
                 "response_metadata": {
-                    "model_name": response_metadata.get("model_name", "phi3:latest"),
+                    "model_name": response_metadata.get("model_name", "llama3.3"),
                     "system_fingerprint": response_metadata.get("system_fingerprint", ""),
                     "finish_reason": response_metadata.get("finish_reason", "stop"),
                     "logprobs": response_metadata.get("logprobs", None),
@@ -171,7 +171,7 @@ class LoggerChatModel:
             return {
                 "content": str(llmresult),
                 "response_metadata": {
-                    "model_name": "phi3:latest",
+                    "model_name": "llama3.3",
                     "system_fingerprint": "",
                     "finish_reason": "stop",
                     "logprobs": None,

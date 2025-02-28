@@ -5,7 +5,7 @@ from pathlib import Path
 
 # LLM Configuration
 LLM_MODEL_TYPE = "ollama"  # Using Ollama as the default LLM provider
-LLM_MODEL = "phi3:latest"  # Using deepseek as the default model
+LLM_MODEL = "llama3.3"  # Using deepseek as the default model
 LLM_API_URL = ""  # Use default Ollama API URL (localhost:11434)
 
 # Application paths

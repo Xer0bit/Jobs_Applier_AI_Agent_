@@ -1,7 +1,7 @@
 personal_information:
-  name: "Muhammad Sameer"
-  surname: "Akram"
-  date_of_birth: "15/05/2003"
+  name: "Aqib"
+  surname: "Chaudhary"
+  date_of_birth: ""
   country: "Pakistan"
   city: "lahore"
   zip_code: " 54000"
@@ -11,7 +11,6 @@ personal_information:
   email: "sameersamiullah02@gmail.com"
   github: "https://github.com/xer0bit"
   linkedin: "https://www.linkedin.com/in/sameer-samiullah/"
-  
 
 education_details:
   - education_level: "B.S. in Software Engineering"
@@ -40,9 +39,6 @@ education_details:
         Database Systems: "A"
         Operating Systems: "A-"
         Web Development: "A"
-
-
-
 
 experience_details:
   - position: "AI Engineer & Growth Strategist"
@@ -115,8 +111,6 @@ projects:
   - name: "Scriptro"
     description: "Launched scriptro.com, a toolkit website to simplify digital tasks and boost productivity."
     link: "https://scriptro.com"
-
-
 
 achievements:
   - name: "Employee of the Month"

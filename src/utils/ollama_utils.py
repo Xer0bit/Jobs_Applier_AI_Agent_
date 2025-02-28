@@ -61,7 +61,7 @@ def start_ollama_server():
         logger.error(f"Error starting Ollama server: {str(e)}")
         return False
 
-def ensure_model_is_available(model_name="phi3:latest"):
+def ensure_model_is_available(model_name="llama3.3"):
     """
     Ensure the specified model is available in Ollama.
     Returns True if model is ready to use, False otherwise.
@@ -122,7 +122,7 @@ def initialize_ollama_environment():
         logger.warning("Ollama server could not be started. Some features may not work correctly.")
     
     # Ensure model is available
-    model_name = "phi3:latest"  # The model we're using
+    model_name = "llama3.3"  # The model we're using
     if not ensure_model_is_available(model_name):
         logger.warning(f"Could not ensure model {model_name} is available. Some features may not work correctly.")
         

@@ -30,7 +30,7 @@ class LLMResumer:
         logger.info("Initializing LLMResumer with local Ollama model")
         try:
             # Use Ollama directly
-            ollama_model = Ollama(model="phi3:latest")
+            ollama_model = Ollama(model="llama3.3")
             
             # Wrap with LoggerChatModel
             self.llm_cheap = LoggerChatModel(ollama_model)
